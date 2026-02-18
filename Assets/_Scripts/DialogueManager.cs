@@ -1,18 +1,22 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
-using Ink.Runtime; 
+using Ink.Runtime;
 using System.Collections.Generic;
 
 public class DialogueManager : MonoBehaviour
 {
     [Header("UI Components")]
-    public TextMeshProUGUI dialogueText; 
-    public Transform choiceButtonContainer; 
-    public GameObject choiceButtonPrefab; 
+    public TextMeshProUGUI dialogueText;
+
+    [Header("3D Card Settings")] 
+    public GameObject cardPrefab; 
+    public Transform[] cardSpawnPoints; 
+
+    
+    private List<GameObject> activeCards = new List<GameObject>();
 
     [Header("Story")]
-    public TextAsset inkJSONAsset; 
+    public TextAsset inkJSONAsset;
     private Story story;
 
     void Start()
@@ -29,39 +33,47 @@ public class DialogueManager : MonoBehaviour
     void RefreshView()
     {
         
-        foreach (Transform child in choiceButtonContainer)
-            Destroy(child.gameObject);
+        foreach (GameObject card in activeCards)
+        {
+            Destroy(card);
+        }
+        activeCards.Clear();
 
         
         if (story.canContinue)
         {
-            string text = story.Continue();
-            dialogueText.text = text;
+            dialogueText.text = story.Continue();
         }
         else
         {
-            dialogueText.text = "Sesi berakhir."; 
+            dialogueText.text = ""; 
         }
 
         
         if (story.currentChoices.Count > 0)
         {
-            foreach (Choice choice in story.currentChoices)
+            for (int i = 0; i < story.currentChoices.Count; i++)
             {
-                GameObject button = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                Choice choice = story.currentChoices[i];
+
                 
-                button.GetComponentInChildren<TextMeshProUGUI>().text = choice.text;
-                
-                button.GetComponent<Button>().onClick.AddListener(() => {
-                    OnClickChoice(choice.index);
-                });
+                if (i < cardSpawnPoints.Length)
+                {
+                    
+                    GameObject newCard = Instantiate(cardPrefab, cardSpawnPoints[i].position, cardSpawnPoints[i].rotation);
+
+                    FateCard cardScript = newCard.GetComponent<FateCard>();
+                    cardScript.choiceIndex = i;
+                    cardScript.manager = this; 
+                    activeCards.Add(newCard);
+                }
             }
         }
     }
 
-    void OnClickChoice(int choiceIndex)
+    public void SelectChoice(int index)
     {
-        story.ChooseChoiceIndex(choiceIndex); 
-        RefreshView(); 
+        story.ChooseChoiceIndex(index);
+        RefreshView();
     }
 }
