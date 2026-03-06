@@ -1,36 +1,67 @@
 using UnityEngine;
+using TMPro;
 
 public class FateCard : MonoBehaviour
 {
-    public int choiceIndex; 
-    public DialogueManager manager; 
+    public int choiceIndex;
+    public DialogueManager manager;
+    public TextMeshPro cardNameText;
+
+    private Color originalColor;
+    private Renderer cardRenderer;
 
     
-    private Color startColor;
-    private Renderer rend;
+    private Vector3 originalPosition;
+    private Vector3 targetPosition;
 
-    void Start()
+    [Header("Animation Settings")]
+    public float liftAmount = 0.05f; 
+    public float liftSpeed = 12f; 
+
+    void Start() 
     {
-        rend = GetComponent<Renderer>();
-        startColor = rend.material.color;
+        cardRenderer = GetComponent<Renderer>();
+        if (cardRenderer != null)
+        {
+            originalColor = cardRenderer.material.color;
+        }
+
+        originalPosition = transform.position;
+        targetPosition = originalPosition;
     }
 
-    
-    void OnMouseEnter()
+    void Update()
     {
-        rend.material.color = Color.yellow; 
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * liftSpeed);
     }
 
-    
-    void OnMouseExit()
-    {
-        rend.material.color = startColor;
-    }
-
-    
     void OnMouseDown()
     {
+        if (manager != null)
+        {
+            manager.SelectChoice(choiceIndex);
+        }
+    }
+
+    void OnMouseEnter()
+    {
+       
+        targetPosition = originalPosition + new Vector3(0, liftAmount, 0);
+
+        if (cardRenderer != null)
+        {
+            cardRenderer.material.color = Color.yellow;
+        }
+    }
+
+    void OnMouseExit()
+    {
         
-        manager.SelectChoice(choiceIndex);
+        targetPosition = originalPosition;
+
+        if (cardRenderer != null)
+        {
+            cardRenderer.material.color = originalColor;
+        }
     }
 }
