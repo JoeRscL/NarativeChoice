@@ -161,9 +161,7 @@ public class DialogueManager : MonoBehaviour
 
         if (hasilEnding == "game_over")
         {
-            PlayerPrefs.DeleteKey("Save_Day");
-            PlayerPrefs.DeleteKey("Save_Faith");
-            PlayerPrefs.DeleteKey("Save_Wealth");
+            DeleteSaveData();
             SceneManager.LoadScene("MainMenuScene");
             return;
         }
@@ -229,6 +227,14 @@ public class DialogueManager : MonoBehaviour
         }
 
         StartStory();
+    }
+
+    public void DeleteSaveData()
+    {
+        PlayerPrefs.DeleteKey("Save_Day");
+        PlayerPrefs.DeleteKey("Save_Faith");
+        PlayerPrefs.DeleteKey("Save_Wealth");
+        PlayerPrefs.Save();
     }
 
     IEnumerator DoFade(float targetAlpha, System.Action onComplete = null)

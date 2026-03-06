@@ -7,6 +7,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void NewGame()
     {
+        PlayerPrefs.DeleteAll();
         PlayerPrefs.DeleteKey("Save_Day");
         PlayerPrefs.Save();
         SceneManager.LoadScene(gameplaySceneName);
